@@ -30,13 +30,13 @@ def encode_hand(hero_cards, community_cards):
 
 
 class NeuralNetwork:
-    def __init__(self, hand_size, hidden_layer_size, output_size):
+    def __init__(self, hand_vector_size, hidden_layer_size, output_size):
         '''
         hand_size: length of the encoded input vector
         hidden_layer_size: number of neurons in the hidden layer
         output_size: size of the output (1 for equity prediction)
         '''
-        self.weight_first=0.01*np.random.randn(hand_size, hidden_layer_size) 
+        self.weight_first=0.01*np.random.randn(hand_vector_size, hidden_layer_size) 
         self.bias_first=np.zeros(hidden_layer_size)
         self.weight_second=0.01*np.random.randn(hidden_layer_size, output_size)
         self.bias_second=np.zeros(output_size)
@@ -57,7 +57,7 @@ class NeuralNetwork:
         '''
         answer: true equity value (target) for this example
         output, z1, relu: intermediate values from forward_propagation
-        
+
         Updates weights and biases in place using gradient descent
         '''
         gradient_z2 = (output-answer) * output * (1-output)
