@@ -12,11 +12,23 @@ for rank in RANKS:
 
 
 def simulate_equity_universal(hero_hand, community_cards, iterations):
+    '''
+    hero_hand: list of 2 (rank, suit) tuples - the hero's hole cards
+    community_cards: list of 0-5 (rank, suit) tuples already known on the board
+    (0 for preflop, 3 for flop, 4 for turn, 5 for river)
+    iterations: number of Monte Carlo simulations to run
+
+    For each simulation, draws a random villain hand (2 cards) and the remaining
+    community cards needed to complete the board, then evaluates both hands and
+    counts wins/ties. Ties are counted as 0.5 of a win.
+
+    Returns: float, hero's win probability (equity) between 0 and 1
+    '''
     #cards are hand + community cards for the hero
     remaining_cards=[c for c in DECK if c not in hero_hand+community_cards]
 
     hero_wins=0
-    #chops are counted as a 0.5 of a win
+    #chops (ties) are counted as a 0.5 of a win
 
     villain_hand_size=2
 
@@ -40,19 +52,28 @@ def simulate_equity_universal(hero_hand, community_cards, iterations):
         
     return hero_wins/iterations
 
+def generate_dataset(stage, examples, iterations):
+    '''
+    stage: which game stage to generate examples for -
+    "preflop" (2 known cards), "flop" (5), "turn" (6), "river" (7)
+    examples: how many labeled examples to generate
+    iterations: how many Monte Carlo simulations to run per example
 
+    For each example, draws a random hand + community cards for the given stage,
+    computes the hero's equity via simulate_equity_universal, and records the pair.
 
+    Returns: list of (cards, equity) tuples, where cards is a list of (rank, suit)
+    tuples and equity is a float between 0 and 1
+    '''
+    stage_dict={"preflop": 2, "flop": 5, "turn": 6, "river": 7}
+    dataset=[]
+    
+    for _ in range(examples):
+        drawn_cards=random.sample(DECK, stage_dict[stage])
+        hand=drawn_cards[:2]
+        community_cards=drawn_cards[2:]
+        equity=simulate_equity_universal(hand, community_cards, iterations)
+        dataset.append((drawn_cards, equity))
 
-
-def simulate_preflop_equity(hand, iterations):
-    return simulate_equity_universal(hand, [], iterations)
-
-def simulate_flop_equity(hand, flop, iterations):
-    return simulate_equity_universal(hand, flop, iterations)
-
-def simulate_turn_equity(hand, flop, turn, iterations):
-    return simulate_equity_universal(hand, flop+[turn], iterations)
-
-def simulate_river_equity(hand, flop, turn, river, iterations):
-    return simulate_equity_universal(hand, flop+[turn]+[river], iterations)
-
+    return dataset
+            
