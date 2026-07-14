@@ -18,7 +18,7 @@ Given a hand and however many community cards are known (preflop, flop, turn, or
 
 `evaluate.py` measures mean squared error on a held-out test set generated independently from the training data.
 
-`visualize.py` trains one network per stage (preflop, flop, turn, river) and produces the plots described below.
+`visualize.py` trains one network per stage (preflop, flop, turn, river) and saves all plots to `charts/`.
 
 `charts/` contains all the generated plots: 4 training error curves and 8 hand convergence plots.
 
@@ -30,12 +30,12 @@ Preflop, flop, turn, and river all have a different number of known cards, so th
 
 For each stage I picked one strong and one weak example hand and tracked the network's prediction after every epoch, alongside the true equity from Monte Carlo:
 
-- preflop: pocket aces (~0.83 equity) vs 7-2 offsuit (~0.35)
-- flop: aces with top set on an A-K-7 board (~0.97) vs 7-2 missing entirely on A-K-T (~0.26)
-- turn: kings full house (~1.00) vs a weak two overcards hand (~0.18)
-- river: nut flush (~1.00) vs a hand playing the board (~0.11)
+- preflop: pocket aces (~0.85 equity) vs 7-2 offsuit (~0.35)
+- flop: aces with top set on an A-K-7 board (~0.96) vs 7-2 missing entirely on A-K-T (~0.21)
+- turn: kings full house (~1.00) vs a weak two overcards hand (~0.17)
+- river: nut flush (~1.00) vs a hand playing the board (~0.10)
 
-All predictions start around 0.5, which is expected: the weights start near zero, and sigmoid(0) is 0.5. From there they move quickly in the right direction. Weak hands converge to within a few points of the true equity line, typically by epoch 50 to 120 (weak_turn takes the longest, dipping before it settles). Strong hands rise fast but flatten out just short of their target (for example strong_flop settles around 0.955 against a true value of 0.97).
+All predictions start around 0.5, which is expected: the weights start near zero, and sigmoid(0) is 0.5. From there they move quickly in the right direction. Weak hands converge to within a few points of the true equity line, typically by epoch 50 to 150. One of the weak hands usually shows a brief dip-and-overshoot before it settles (in this run it's weak_flop, dropping to about 0.17 before climbing back up); which hand does this varies between runs since the training data is resampled each time. Strong hands rise fast but flatten out just short of their target (for example strong_flop settles around 0.95 against a true value of 0.96).
 
 This gap isn't noise, it comes from the sigmoid's own gradient. The backward pass includes a factor of output times (1 - output), which shrinks toward zero as the output approaches 0 or 1. Since strong hands have targets sitting right at that edge of the range, the gradient pushing them the rest of the way gets weaker and weaker, while weak hands sit closer to the middle where the gradient stays strong. On top of that, an equity of exactly 1.0 is mathematically out of reach for a sigmoid, and extreme hands like these are also rarer in a randomly sampled training set, so the network has less incentive to fit them perfectly.
 
@@ -43,13 +43,13 @@ This gap isn't noise, it comes from the sigmoid's own gradient. The backward pas
 
 The training error curves show a clear pattern: flop, turn, and river all converge to essentially zero error, meaning the network can nearly memorize its 500 training examples once enough cards are visible. Preflop plateaus at a noticeably higher error instead, because with only 2 known cards there's a lot of unavoidable variance in the outcome, no amount of fitting can remove randomness that depends on cards not yet dealt.
 
-Starting error also increases with each stage (about 0.011 for preflop, up to 0.088 for river). That follows from how spread out the true equities are: on the river most hands are already decided one way or the other, so their equities sit near 0 or 1, far from the network's default 0.5 guess. Preflop equities cluster closer to 0.5 to begin with, so the initial error is smaller.
+Starting error also increases with each stage (about 0.011 for preflop, up to 0.084 for river). That follows from how spread out the true equities are: on the river most hands are already decided one way or the other, so their equities sit near 0 or 1, far from the network's default 0.5 guess. Preflop equities cluster closer to 0.5 to begin with, so the initial error is smaller.
 
-One side note from the data itself: Monte Carlo assigned the strong_turn example (kings full house) an equity of exactly 1.00, even though that hand isn't actually unbeatable at that point (a river king or deuce would beat it). With only 500 simulations, those rare river cards simply never got drawn. A good reminder that Monte Carlo estimates are only as good as the sample size behind them.
+One side note from the data itself: Monte Carlo assigned both the strong_turn and strong_river examples an equity of exactly 1.00, even though a hand can't truly be unbeatable at those points (there's almost always some runout that flips the result). With only 500 simulations, those rare cards simply never got drawn. A good reminder that Monte Carlo estimates are only as good as the sample size behind them.
 
 ## Parameters used
 
-All results above were generated with 500 training examples, 500 Monte Carlo iterations per equity label, 200 training epochs, and a learning rate of 0.1.
+All results above were generated with 500 training examples, 500 Monte Carlo iterations per equity label, 200 training epochs, and a learning rate of 0.1. Since the training data is randomly sampled, re-running this will produce slightly different numbers, though the qualitative patterns described above should hold.
 
 All the plots described above are saved in the `charts` folder: 4 training error curves (one per stage) and 8 convergence plots (one strong and one weak hand per stage).
 

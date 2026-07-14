@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import os
 from train import train
 
 EXAMPLES = {
@@ -21,6 +22,7 @@ EXAMPLES = {
 }
 
 if __name__=="__main__":
+    os.makedirs("charts", exist_ok=True)
     for stage, stage_examples in EXAMPLES.items():
         train_result = train(stage, 500, 500, 200, 0.1, list(stage_examples.values()))
         history_of_error=train_result[1]
@@ -30,7 +32,8 @@ if __name__=="__main__":
         plt.xlabel("Epoch")
         plt.ylabel("Mean Squared Error")
         plt.title(f"Training error over epochs ({stage})")
-        plt.savefig(f"training_error_{stage}.png")
+        plt.savefig(f"charts/training_error_{stage}.png")
+        plt.close()
         for name, cards in stage_examples.items():
             values = hands_equity[tuple(cards)]
             true_equity = values[0]
@@ -43,4 +46,5 @@ if __name__=="__main__":
             plt.ylabel("Equity")
             plt.title(name)
             plt.legend()
-            plt.savefig(f"{name}.png")
+            plt.savefig(f"charts/{name}.png")
+            plt.close()
