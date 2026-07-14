@@ -30,7 +30,7 @@ Preflop, flop, turn, and river all have a different number of known cards, so th
 
 ## Convergence on sample hands
 
-For each stage I picked one strong and one weak example hand and tracked the network's prediction after every epoch, alongside the true equity from Monte Carlo:
+For each stage I picked one strong and one weak example hand and tracked the network's prediction after every epoch, alongside the true equity from Monte Carlo. These example hands are added to the training set alongside the randomly sampled ones, so these plots show how well the network fits examples it's actively learning from, not generalization to unseen hands (that's what the Test error section below covers):
 
 - preflop: pocket aces (~0.85 equity) vs 7-2 offsuit (~0.35)
 - flop: aces with top set on an A-K-7 board (~0.96) vs 7-2 missing entirely on A-K-T (~0.21)
@@ -47,17 +47,15 @@ The training error curves show a clear pattern: flop, turn, and river all conver
 
 Starting error also increases with each stage (about 0.011 for preflop, up to 0.084 for river). That follows from how spread out the true equities are: on the river most hands are already decided one way or the other, so their equities sit near 0 or 1, far from the network's default 0.5 guess. Preflop equities cluster closer to 0.5 to begin with, so the initial error is smaller.
 
-One side note from the data itself: Monte Carlo assigned the strong_turn example (kings full house) an equity of exactly 1.00, even though that hand isn't actually unbeatable at that point: an opponent already holding a pair of deuces would have quads right now, and a river card completing a different opponent holding into quads is also possible. With only 500 simulations, those specific opposing hands simply never got drawn.
+One side note from the data itself: Monte Carlo assigned the strong_turn example (kings full house) an equity of exactly 1.00, even though that hand isn't actually unbeatable at that point: an opponent already holding a pair of deuces would have quads right now, an opponent holding a pair of aces would make a bigger full house with an ace on the river, and an opponent holding a pair of sevens would make quad sevens with another seven on the river. With only 500 simulations, those specific opposing hands simply never got drawn.
 
 ## Test error
 
-The training error curve for flop (see `charts/training_error_flop.png`) drops to near zero by the end of 200 epochs, but that number only reflects how well the network fits the 500 hands it was trained on. Running `evaluate.py` on 300 freshly generated flop hands, which the network never saw during training, gives a test MSE of about 0.048 (roughly 22 percentage points of equity off, on average). That gap between near-zero error on the training set and a much higher error on new hands is a sign of overfitting: with a training set this small relative to the number of possible flop hands, the network has enough capacity to fit it closely rather than learn a pattern general enough to hold up on hands it hasn't seen. A larger training set would likely narrow this gap.
+The training error curve for flop (see `charts/training_error_flop.png`) drops to near zero by the end of 200 epochs, but that number only reflects how well the network fits the 500 hands it was trained on. Running `evaluate.py` on 300 freshly generated flop hands, which the network never saw during training, gives a test MSE of about 0.0448 (roughly 21 percentage points of equity off, on average). That gap between near-zero error on the training set and a much higher error on new hands is a sign of overfitting: with a training set this small relative to the number of possible flop hands, the network has enough capacity to fit it closely rather than learn a pattern general enough to hold up on hands it hasn't seen. A larger training set would likely narrow this gap.
 
 ## Parameters used
 
 All results above were generated with 500 training examples, 500 Monte Carlo iterations per equity label, 200 training epochs, and a learning rate of 0.1. Since the training data is randomly sampled, re-running this will produce slightly different numbers, though the qualitative patterns described above should hold.
-
-All the plots described above are saved in the `charts` folder: 4 training error curves (one per stage) and 8 convergence plots (one strong and one weak hand per stage).
 
 ## Running it
 

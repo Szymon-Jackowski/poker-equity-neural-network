@@ -32,7 +32,7 @@ def encode_hand(hero_cards, community_cards):
 class NeuralNetwork:
     def __init__(self, hand_vector_size, hidden_layer_size, output_size):
         '''
-        hand_size: length of the encoded input vector
+        hand_vector_size: length of the encoded input vector
         hidden_layer_size: number of neurons in the hidden layer
         output_size: size of the output (1 for equity prediction)
         '''

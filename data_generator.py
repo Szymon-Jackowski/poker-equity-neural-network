@@ -9,8 +9,6 @@ for rank in RANKS:
     for suit in SUITS:
         DECK.append((rank, suit))
 
-
-
 def simulate_equity_universal(hero_hand, community_cards, iterations):
     '''
     hero_hand: list of 2 (rank, suit) tuples - the hero's hole cards
@@ -26,17 +24,11 @@ def simulate_equity_universal(hero_hand, community_cards, iterations):
     '''
     #cards are hand + community cards for the hero
     remaining_cards=[c for c in DECK if c not in hero_hand+community_cards]
-
     hero_wins=0
     #chops (ties) are counted as a 0.5 of a win
-
     villain_hand_size=2
-
     cards_to_draw = 5-len(community_cards)+villain_hand_size
     
-
-
-
     for _ in range(iterations):
         drawn_cards=random.sample(remaining_cards, cards_to_draw)
         villain_hand = drawn_cards[:2]

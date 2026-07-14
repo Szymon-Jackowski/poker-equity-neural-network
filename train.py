@@ -2,7 +2,18 @@ from neural_network import encode_hand, NeuralNetwork
 from data_generator import generate_dataset, simulate_equity_universal, stage_dict
 
 def train(stage, examples, iterations, epochs, learning_rate, extra_examples=None):
+    '''
+    stage: "preflop", "flop", "turn", or "river" - determines input size and hidden layer size
+    examples: number of randomly sampled training examples to generate
+    iterations: Monte Carlo simulations per example, controls equity label accuracy
+    epochs: number of full passes through the training set
+    learning_rate: step size for gradient descent updates
+    extra_examples: optional list of specific hands (as flat card lists) to add to the
+    training set and track prediction history for, used for the convergence plots
 
+    Returns: [trained network, list of per-epoch mean squared error, dict mapping each
+    hand (as a tuple) to its true equity followed by its predicted equity after each epoch]
+    '''
     hidden_stage_dict={"preflop":16, "flop":32, "turn":32, "river":64}
     input_vector_size=(13+4)*stage_dict[stage]
     hidden_layer_size=hidden_stage_dict[stage]

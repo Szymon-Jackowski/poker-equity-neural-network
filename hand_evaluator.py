@@ -85,7 +85,7 @@ def check_straight(cards):
     '''
 
     cards.sort()
-    #dictionary keeps keys without duplicates and we put the in sorted order
+    #dictionary keeps keys without duplicates and we put them in sorted order
     cards_dict={c[0]:0 for c in cards}
     ranks=list(cards_dict)
     dict_size=len(cards_dict)
