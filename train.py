@@ -37,5 +37,5 @@ def train(stage, examples, iterations, epochs, learning_rate, extra_examples=Non
     return [taught_network, history_of_error, hands_equity]
 
 if __name__ == "__main__":
-    result = train("flop", 500, 300, 100, 0.1, [])
+    result = train("flop", 500, 500, 200, 0.1, [])
     print(f"Final training error: {result[1][-1][0]:.4f}")

@@ -35,7 +35,7 @@ For each stage I picked one strong and one weak example hand and tracked the net
 - preflop: pocket aces (~0.85 equity) vs 7-2 offsuit (~0.35)
 - flop: aces with top set on an A-K-7 board (~0.96) vs 7-2 missing entirely on A-K-T (~0.21)
 - turn: kings full house (~1.00) vs a hand that missed the board entirely (~0.17)
-- river: nut flush (~1.00) vs a hand playing the board (~0.10)
+- river: nut flush (~1.00) vs a weak hand with almost no help from the board (~0.10)
 
 All predictions start around 0.5, which is expected: the weights start near zero, and sigmoid(0) is 0.5. From there they move quickly in the right direction. Weak hands converge to within a few points of the true equity line, typically by epoch 50 to 150. One of the weak hands usually shows a brief dip-and-overshoot before it settles (in this run it's weak_flop, dropping to about 0.17 before climbing back up); which hand does this varies between runs since the training data is resampled each time. Strong hands rise fast but flatten out just short of their target (for example strong_flop settles around 0.95 against a true value of 0.96).
 
@@ -47,11 +47,11 @@ The training error curves show a clear pattern: flop, turn, and river all conver
 
 Starting error also increases with each stage (about 0.011 for preflop, up to 0.084 for river). That follows from how spread out the true equities are: on the river most hands are already decided one way or the other, so their equities sit near 0 or 1, far from the network's default 0.5 guess. Preflop equities cluster closer to 0.5 to begin with, so the initial error is smaller.
 
-One side note from the data itself: Monte Carlo assigned the strong_turn example (kings full house) an equity of exactly 1.00, even though that hand isn't actually unbeatable at that point (a river king or deuce would beat it). With only 500 simulations, those rare river cards simply never got drawn. Strong_river, on the other hand, genuinely is the nuts once all cards are dealt: an ace-high flush on that board can't be beaten, so its 1.00 equity is exact, not an artifact of sample size.
+One side note from the data itself: Monte Carlo assigned the strong_turn example (kings full house) an equity of exactly 1.00, even though that hand isn't actually unbeatable at that point: an opponent already holding a pair of deuces would have quads right now, and a river card completing a different opponent holding into quads is also possible. With only 500 simulations, those specific opposing hands simply never got drawn.
 
 ## Test error
 
-The training error curve for flop (see `charts/training_error_flop.png`) drops to near zero by the end of 200 epochs, but that number only reflects how well the network fits the 500 hands it was trained on. Running `evaluate.py` on 100 freshly generated flop hands, which the network never saw during training, gives a test MSE of about 0.042 (roughly 20 percentage points of equity off, on average). That gap between near-zero error on the 500 training hands and a much higher error on the 100 test hands is a sign of overfitting: with a training set this small, the network has enough capacity to nearly memorize it rather than learn a pattern general enough to hold up on hands it hasn't seen. A larger training set would likely narrow this gap.
+The training error curve for flop (see `charts/training_error_flop.png`) drops to near zero by the end of 200 epochs, but that number only reflects how well the network fits the 500 hands it was trained on. Running `evaluate.py` on 300 freshly generated flop hands, which the network never saw during training, gives a test MSE of about 0.048 (roughly 22 percentage points of equity off, on average). That gap between near-zero error on the training set and a much higher error on new hands is a sign of overfitting: with a training set this small relative to the number of possible flop hands, the network has enough capacity to fit it closely rather than learn a pattern general enough to hold up on hands it hasn't seen. A larger training set would likely narrow this gap.
 
 ## Parameters used
 

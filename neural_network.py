@@ -4,7 +4,7 @@ SUITS = {"Spades":0, "Hearts":1, "Diamonds":2, "Clubs":3}
 
 def encode_card(card):
     '''
-    card: 2 element list with card's rank at card[0] and card's suit at card[1]
+    card: 2 element tuple with card's rank at card[0] and card's suit at card[1]
     '''
     rank_vector = [0 for i in RANKS]
 
@@ -22,7 +22,7 @@ def encode_hand(hero_cards, community_cards):
     hero_cards: list of 2 (rank, suit) tuples - hero's hole cards
     community_cards: list of (rank, suit) tuples on the board
 
-    Returns: flat list combining one-hot encodings of all cards
+    Returns: list combining encodings of all cards
     '''
     hand_vector=[bit for c in sorted(hero_cards) for bit in encode_card(c)]
     community_vector=[bit for c in sorted(community_cards) for bit in encode_card(c)]
@@ -56,7 +56,7 @@ class NeuralNetwork:
     def back_propagation(self, hand_vector, answer, output, relu, z1, learning_rate):
         '''
         answer: true equity value (target) for this example
-        output, z1, relu: intermediate values from forward_propagation
+        output, relu, z1: intermediate values from forward_propagation
 
         Updates weights and biases in place using gradient descent
         '''
