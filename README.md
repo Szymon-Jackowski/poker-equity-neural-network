@@ -22,6 +22,8 @@ Given a hand and however many community cards are known (preflop, flop, turn, or
 
 `charts/` contains all the generated plots: 4 training error curves and 8 hand convergence plots.
 
+`requirements.txt` lists the two dependencies (numpy and matplotlib) needed to run this project.
+
 ## Why one network per stage
 
 Preflop, flop, turn, and river all have a different number of known cards, so the input vector is a different size at each stage. Rather than padding everything to a common size, I trained four separate small networks, each sized for its stage (16 hidden neurons for preflop, up to 64 for river).
