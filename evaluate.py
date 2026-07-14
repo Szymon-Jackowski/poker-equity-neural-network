@@ -10,7 +10,3 @@ def evaluate(stage, examples, iterations, neural_network):
         predicted_output=neural_network.forward_propagation(code)[0]
         error+=(predicted_output-ex[1])**2
     return error/len(data_set)
-
-nn = train("flop", 500, 300, 50, 0.1)[0]
-error = evaluate("flop", 100, 300, nn)
-print(error)

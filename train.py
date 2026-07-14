@@ -1,7 +1,7 @@
 from neural_network import encode_hand, NeuralNetwork
-from data_generator import generate_dataset
+from data_generator import generate_dataset, simulate_equity_universal
 
-def train(stage, examples, iterations, epochs, learning_rate):
+def train(stage, examples, iterations, epochs, learning_rate, extra_examples=None):
     stage_dict={"preflop":2, "flop":5, "turn":6, "river":7}
     hidden_stage_dict={"preflop":16, "flop":32, "turn":32, "river":64}
     input_vector_size=(13+4)*stage_dict[stage]
@@ -9,7 +9,15 @@ def train(stage, examples, iterations, epochs, learning_rate):
 
     taught_network=NeuralNetwork(input_vector_size, hidden_layer_size, 1)
     dataset = generate_dataset(stage, examples, iterations)
+    if extra_examples:
+        hands_to_avoid=[ds[0] for ds in dataset]
+        for ex in extra_examples:
+            if ex not in hands_to_avoid:
+                equity=simulate_equity_universal(ex[:2], ex[2:], iterations)
+                dataset.append((ex, equity))
     history_of_error=[]
+    hands_equity = {tuple(hand[0]): [hand[1]] for hand in dataset}
+    #WARNING: 0th element in hands_equity is the equity taken from the dataset
     
 
     for _ in range(epochs):
@@ -23,7 +31,7 @@ def train(stage, examples, iterations, epochs, learning_rate):
             #[output, relu, z1] is the return of the forward propagation
             rl=received_list
             error+=(rl[0]-card_set[1])**2
-            
             taught_network.back_propagation(code, card_set[1], rl[0], rl[2], rl[1], learning_rate)
+            hands_equity[tuple(card_set[0])].append(rl[0])
         history_of_error.append(error/len(dataset))
-    return [taught_network, history_of_error]
+    return [taught_network, history_of_error, hands_equity]
