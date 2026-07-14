@@ -4,7 +4,7 @@ import random
 RANKS = [i for i in range(2,15)]
 SUITS = ["Spades", "Hearts", "Diamonds", "Clubs"]
 DECK=[]
-
+stage_dict={"preflop": 2, "flop": 5, "turn": 6, "river": 7}
 for rank in RANKS:
     for suit in SUITS:
         DECK.append((rank, suit))
@@ -65,7 +65,7 @@ def generate_dataset(stage, examples, iterations):
     Returns: list of (cards, equity) tuples, where cards is a list of (rank, suit)
     tuples and equity is a float between 0 and 1
     '''
-    stage_dict={"preflop": 2, "flop": 5, "turn": 6, "river": 7}
+
     dataset=[]
     
     for _ in range(examples):

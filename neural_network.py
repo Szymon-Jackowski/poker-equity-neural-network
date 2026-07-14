@@ -6,7 +6,7 @@ def encode_card(card):
     '''
     card: 2 element list with card's rank at card[0] and card's suit at card[1]
     '''
-    rank_vector = [0 for i in range(2, 15)]
+    rank_vector = [0 for i in RANKS]
 
     rank_vector[card[0]-2]=1
     #-2 because the numbers start at 2, not at 0
@@ -53,7 +53,7 @@ class NeuralNetwork:
         output=1/(1+np.exp(-z2))
         return [output, relu, z1]
 
-    def back_propagation(self, hand_vector, answer, output, z1, relu, learning_rate):
+    def back_propagation(self, hand_vector, answer, output, relu, z1, learning_rate):
         '''
         answer: true equity value (target) for this example
         output, z1, relu: intermediate values from forward_propagation
